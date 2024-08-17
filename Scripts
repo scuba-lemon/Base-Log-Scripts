@@ -1,0 +1,57 @@
+let today = new Date();
+
+// function onEdit(e) {
+//   if (SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName() !== 'Log') return;
+//   const { range, value } = e;
+//   const row = range.getRow();
+//   const col = range.getColumn();
+//   if (col >= 1 && col <= 6 && row > 0) {SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange(row, 1).setValue(value ? today.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '');  }
+// };
+
+function onOpen() {
+  let firstEmptyRow = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Log').getRange('A:A').getValues().findIndex(row => !row[0]);
+  firstEmptyRow = firstEmptyRow === -1 ? columnA.length + 1 : firstEmptyRow + 1;
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Log').getRange(firstEmptyRow, 1).activate();
+};
+
+function onEdit(e) {
+  const sheet = e.source.getActiveSheet();
+  if (sheet.getSheetName() !== 'Log') return;
+
+  const { range, value } = e;
+  const row = range.getRow();
+  const col = range.getColumn();
+  const todayStr = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+  const cellA = sheet.getRange(row, 1);
+  let cellValue = String(cellA.getValue()); // Convert to string for regex validation
+  const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{2}$/;
+  const rangeBtoF = sheet.getRange(row, 2, 1, 5).getValues()[0];
+  const allEmpty = rangeBtoF.every(cell => !cell);
+
+  if (col === 1 && allEmpty) {
+    if (!cellValue || !dateRegex.test(cellValue)) {
+      // Set today’s date if value is incorrect or empty
+      cellA.setValue(todayStr);
+    }
+  } else if (col === 1) {
+    if (!cellValue || !dateRegex.test(cellValue)) {
+      // Set today’s date if value is incorrect or empty
+      cellA.setValue(todayStr);
+    }
+  } else if (col >= 1 && col <= 6) {
+
+    if (allEmpty && !cellValue) {
+      // If all cells in columns B-F are empty and cell A is also empty, clear the value in A
+      cellA.setValue('');
+    } else if (!cellValue) {
+      // If column A is empty but there is data in B-F, set today's date
+      cellA.setValue(todayStr);
+    } else if (dateRegex.test(cellValue)) {
+      // If the value in column A is correctly formatted, keep it as is
+      cellA.setValue(cellValue);
+    } else {
+      // If the value in column A is incorrectly formatted, correct it to today's date
+      cellA.setValue(todayStr);
+    }
+  }
+}
