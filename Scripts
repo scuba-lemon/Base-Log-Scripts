@@ -13,9 +13,12 @@ function onEdit(e) {
   const row = range.getRow();
   const col = range.getColumn();
   const cellValue = activeSheet.getRange(row, 1).getValue();
-  
-  activeSheet.getRange(row, 1).setValue(col !== 1
-    ? (cellValue === '' ? (value ? today.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '') : cellValue)
-    : (value ? today.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '')
-  );
+
+  if ((col > 6) || (row == 1)){
+    return;
+  } else if ((col !== 1)) {
+     activeSheet.getRange(row, 1).setValue(cellValue === '' ? (value ? today.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '') : cellValue);
+  } else {
+    activeSheet.getRange(row, 1).setValue(value ? today.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '');
+  }
 };
